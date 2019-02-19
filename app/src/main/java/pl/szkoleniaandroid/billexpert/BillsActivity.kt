@@ -8,6 +8,8 @@ import android.preference.PreferenceManager
 import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,15 +50,22 @@ class BillsActivity : AppCompatActivity() {
 
         adapter = object: ArrayAdapter<Bill>(this, android.R.layout.simple_list_item_1) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                var view  = LayoutInflater.from(context).inflate(R.layout.bill_item, parent, false)
+                Log.d("TAG", "CV:$convertView")
+                var view  = convertView ?: LayoutInflater.from(context).inflate(R.layout.bill_item, parent, false)
 
                 val bill = getItem(position)
-                view.name_tv.text = bill.name
                 view.comment_tv.text = bill.comment
                 view.amount_tv.text = bill.amount.toString()
 
-                Picasso.get().load("file:///android_asset/${bill.category.name.toLowerCase()}.png").into(view.imageView)
+                val vh: ViewHolder = view.tag as? ViewHolder ?: ViewHolder(view.imageView, view.name_tv)
+                vh.nameTV.text = bill.name
 
+
+                Picasso.get()
+                    .load("file:///android_asset/${bill.category.name.toLowerCase()}.png")
+                    .into(vh.iv)
+
+                view.tag = vh
 
                 return view
             }
@@ -128,3 +137,5 @@ class BillsActivity : AppCompatActivity() {
     }
 
 }
+
+class ViewHolder(val iv: ImageView, val nameTV: TextView)
