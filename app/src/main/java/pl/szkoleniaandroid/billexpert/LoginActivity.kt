@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.activity_login.*
 import pl.szkoleniaandroid.billexpert.api.Bill
@@ -26,7 +27,12 @@ class LoginActivity : AppCompatActivity(), LoginView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, object: ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return LoginViewModel(billApi) as T
+            }
+
+        }).get(LoginViewModel::class.java)
 
         login_button.setOnClickListener {
             tryToLogin()
@@ -91,7 +97,7 @@ interface LoginView {
     fun goToMain(body: LoginResponse)
 }
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(val billApi: BillApi) : ViewModel() {
 
     var loginView: LoginView? = null
 
@@ -100,12 +106,6 @@ class LoginViewModel : ViewModel() {
     fun login(username: String, password: String) {
 
 
-        val retrofit = Retrofit.Builder()
-            .addConverterFactory(MoshiConverterFactory.create())
-            .baseUrl("https://parseapi.back4app.com")
-            .build()
-
-        val billApi = retrofit.create(BillApi::class.java)
 
         if (loginCall == null) {
             loginCall = billApi.getLogin(username, password)

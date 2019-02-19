@@ -16,7 +16,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import kotlinx.android.synthetic.main.activity_bills.*
 import kotlinx.android.synthetic.main.content_bills.*
 import pl.szkoleniaandroid.billexpert.api.Bill
+import pl.szkoleniaandroid.billexpert.api.BillResponse
 import pl.szkoleniaandroid.billexpert.api.LoginResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class BillsActivity : AppCompatActivity() {
 
@@ -44,9 +48,7 @@ class BillsActivity : AppCompatActivity() {
         adapter = ArrayAdapter<Bill>(this, android.R.layout.simple_list_item_1)
         bills_list.adapter = adapter
 
-        adapter.addAll(
-            Array(100, { Bill("bill $it")}).toList()
-        )
+
 
         bills_list.setOnItemClickListener { parent, view, position, id ->
             val bill = adapter.getItem(position)
@@ -76,6 +78,21 @@ class BillsActivity : AppCompatActivity() {
                 return true
             }
             R.id.refresh_action -> {
+                billApi.getBills().enqueue(object: Callback<BillResponse>{
+                    override fun onFailure(call: Call<BillResponse>, t: Throwable) {
+
+                    }
+
+                    override fun onResponse(call: Call<BillResponse>, response: Response<BillResponse>) {
+                        if(response.isSuccessful) {
+                            val billResponse = response.body()
+                            Log.d("TAG", billResponse.toString())
+                        } else {
+                            response.errorBody()
+                        }
+                    }
+
+                })
                 return true
             }
             R.id.logout_action -> {
