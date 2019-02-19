@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -21,8 +22,17 @@ class BillsActivity : AppCompatActivity() {
 
     private lateinit var adapter: ArrayAdapter<Bill>
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if(loginManager.isNotLoggedIn()){
+            goToLogin()
+            return
+        }
+
+
         setContentView(R.layout.activity_bills)
         setSupportActionBar(toolbar)
 
@@ -49,6 +59,11 @@ class BillsActivity : AppCompatActivity() {
 
     }
 
+    private fun goToLogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.bills, menu)
         return super.onCreateOptionsMenu(menu)
@@ -69,7 +84,9 @@ class BillsActivity : AppCompatActivity() {
                 builder.setTitle("Logout").setMessage("Are you sure?")
                     .setNegativeButton("Cancel", null)
                     .setPositiveButton("OK") { _, _ ->
-                        finish()
+                        loginManager.logout()
+
+                        goToLogin()
                     }
                 builder.create().show()
                 return true

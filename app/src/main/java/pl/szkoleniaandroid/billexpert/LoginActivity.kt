@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
@@ -47,33 +48,41 @@ class LoginActivity : AppCompatActivity(), LoginView {
         val password = password_et.text.toString()
 
         var isValid = true
-        if(username.isEmpty()) {
+        if (username.isEmpty()) {
             username_layout.error = getString(R.string.username_empty_error)
             isValid = false
         }
 
-        if(password.isEmpty()) {
+        if (password.isEmpty()) {
             password_layout.error = getString(R.string.password_empty_error)
             isValid = false
         }
-        if(isValid) {
+        if (isValid) {
             viewModel.login(username, password)
         }
     }
 
     override fun goToMain(body: LoginResponse) {
-        //finish()
+
+        loginManager.save(body.sessionToken, body.objectId)
+
         val intent = Intent(this, BillsActivity::class.java)
         intent.putExtra("body", body)
-        startActivityForResult(intent,1)
+        startActivityForResult(intent, 1)
+        finish()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == 1 && resultCode != Activity.RESULT_CANCELED && data != null) {
+        if (requestCode == 1 && resultCode != Activity.RESULT_CANCELED && data != null) {
             val bill = data.getSerializableExtra("bill") as Bill
             Log.d("TAG", "Bill:$bill")
         }
+    }
+
+    companion object {
+        const val TOKEN_KEY = "token"
+        const val USER_ID_KEY = "userId"
     }
 }
 
@@ -98,7 +107,7 @@ class LoginViewModel : ViewModel() {
 
         val billApi = retrofit.create(BillApi::class.java)
 
-        if(loginCall == null) {
+        if (loginCall == null) {
             loginCall = billApi.getLogin(username, password)
             loginCall!!.enqueue(object : Callback<LoginResponse> {
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
@@ -106,7 +115,7 @@ class LoginViewModel : ViewModel() {
                 }
 
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                    if(response.isSuccessful) {
+                    if (response.isSuccessful) {
                         val body = response.body()!!
                         loginView?.goToMain(body)
                     }
