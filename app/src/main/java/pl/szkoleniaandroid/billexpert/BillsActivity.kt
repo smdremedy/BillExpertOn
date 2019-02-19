@@ -1,12 +1,14 @@
 package pl.szkoleniaandroid.billexpert
 
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -53,6 +55,26 @@ class BillsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.add_action -> {
+                startActivity(Intent(this, DetailsActivity::class.java))
+                return true
+            }
+            R.id.refresh_action -> {
+                return true
+            }
+            R.id.logout_action -> {
+                val builder = AlertDialog.Builder(this)
+
+                builder.setTitle("Logout").setMessage("Are you sure?")
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("OK") { _, _ ->
+                        finish()
+                    }
+                builder.create().show()
+                return true
+            }
+        }
         return super.onOptionsItemSelected(item)
     }
 
