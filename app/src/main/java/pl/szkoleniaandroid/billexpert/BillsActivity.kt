@@ -87,6 +87,9 @@ class BillsActivity : AppCompatActivity() {
                         if(response.isSuccessful) {
                             val billResponse = response.body()
                             Log.d("TAG", billResponse.toString())
+
+
+                            adapter.addAll(billResponse!!.results)
                         } else {
                             response.errorBody()
                         }

@@ -59,5 +59,6 @@ data class Bill(
     val category: Category,
     val comment: String,
     val date: String,
-    val userId: String
+    val userId: String,
+    val name: String
 ) : Serializable
