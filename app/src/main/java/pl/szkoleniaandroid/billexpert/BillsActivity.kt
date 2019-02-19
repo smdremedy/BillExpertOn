@@ -6,14 +6,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
+import com.squareup.picasso.Picasso
 
 import kotlinx.android.synthetic.main.activity_bills.*
+import kotlinx.android.synthetic.main.bill_item.view.*
 import kotlinx.android.synthetic.main.content_bills.*
 import pl.szkoleniaandroid.billexpert.api.Bill
 import pl.szkoleniaandroid.billexpert.api.BillResponse
@@ -45,7 +46,21 @@ class BillsActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-        adapter = ArrayAdapter<Bill>(this, android.R.layout.simple_list_item_1)
+        adapter = object: ArrayAdapter<Bill>(this, android.R.layout.simple_list_item_1) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                var view  = LayoutInflater.from(context).inflate(R.layout.bill_item, parent, false)
+
+                val bill = getItem(position)
+                view.name_tv.text = bill.name
+                view.comment_tv.text = bill.comment
+                view.amount_tv.text = bill.amount.toString()
+
+                Picasso.get().load("file:///android_asset/${bill.category.name.toLowerCase()}.png").into(view.imageView)
+
+
+                return view
+            }
+        }
         bills_list.adapter = adapter
 
 
@@ -87,14 +102,11 @@ class BillsActivity : AppCompatActivity() {
                         if(response.isSuccessful) {
                             val billResponse = response.body()
                             Log.d("TAG", billResponse.toString())
-
-
                             adapter.addAll(billResponse!!.results)
                         } else {
                             response.errorBody()
                         }
                     }
-
                 })
                 return true
             }
