@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.content_bills.*
 import pl.szkoleniaandroid.billexpert.api.Bill
 import pl.szkoleniaandroid.billexpert.api.BillResponse
 import pl.szkoleniaandroid.billexpert.api.LoginResponse
+import pl.szkoleniaandroid.billexpert.db.BillDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -109,9 +110,26 @@ class BillsActivity : AppCompatActivity() {
 
                     override fun onResponse(call: Call<BillResponse>, response: Response<BillResponse>) {
                         if(response.isSuccessful) {
-                            val billResponse = response.body()
+                            val billResponse: BillResponse = response.body()!!
                             Log.d("TAG", billResponse.toString())
-                            adapter.addAll(billResponse!!.results)
+                            adapter.addAll(billResponse.results)
+
+                            Thread(Runnable {
+
+                                billResponse.results.map {
+                                    BillDto().apply {
+                                        name = it.name
+                                        comment = it.comment
+                                        amount = it.amount
+                                        category = it.category
+                                        id = it.objectId
+                                    }
+                                }.forEach { billDao.save(it) }
+
+                            }).start()
+
+
+
                         } else {
                             response.errorBody()
                         }
