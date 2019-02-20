@@ -4,7 +4,11 @@ import android.app.Activity
 import android.app.Application
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import pl.szkoleniaandroid.billexpert.api.BillApi
+import pl.szkoleniaandroid.billexpert.db.BillDao
+import pl.szkoleniaandroid.billexpert.db.BillsDatabase
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -12,6 +16,7 @@ class App : Application() {
 
     lateinit var loginManager: LoginManager
     lateinit var billApi: BillApi
+    lateinit var billDao: BillDao
 
     override fun onCreate() {
         super.onCreate()
@@ -24,6 +29,9 @@ class App : Application() {
 
         billApi = retrofit.create(BillApi::class.java)
 
+        val db = Room.databaseBuilder(this, BillsDatabase::class.java, "bills.db").build()
+
+        billDao = db.getBillDao()
     }
 
 }
@@ -33,6 +41,9 @@ val Activity.loginManager: LoginManager
 
 val Activity.billApi: BillApi
     get() = (this.application as App).billApi
+
+val Activity.billDao: BillDao
+    get() = (this.application as App).billDao
 
 class LoginManager(val preferences: SharedPreferences) {
 
