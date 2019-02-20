@@ -1,14 +1,11 @@
 package pl.szkoleniaandroid.billexpert.db
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface BillDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun save(billDto: BillDto)
 
     @Query("SELECT * from bill")

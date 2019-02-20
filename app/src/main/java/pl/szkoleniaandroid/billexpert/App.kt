@@ -6,6 +6,9 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.facebook.stetho.Stetho
+import com.facebook.stetho.okhttp3.StethoInterceptor
+import okhttp3.OkHttpClient
 import pl.szkoleniaandroid.billexpert.api.BillApi
 import pl.szkoleniaandroid.billexpert.db.BillDao
 import pl.szkoleniaandroid.billexpert.db.BillsDatabase
@@ -22,7 +25,17 @@ class App : Application() {
         super.onCreate()
         loginManager = LoginManager(PreferenceManager.getDefaultSharedPreferences(this))
 
+        if(BuildConfig.DEBUG) {
+
+            Stetho.initializeWithDefaults(this)
+
+        }
+        val client = OkHttpClient.Builder()
+            .addNetworkInterceptor(StethoInterceptor())
+            .build()
+
         val retrofit = Retrofit.Builder()
+            .client(client)
             .addConverterFactory(MoshiConverterFactory.create())
             .baseUrl("https://parseapi.back4app.com")
             .build()
